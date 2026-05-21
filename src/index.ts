@@ -12,6 +12,10 @@ import { summarizeRepoTool } from "./tools/summarizeRepo.js";
 import { searchCodeTool } from "./tools/searchCode.js";
 import { systemInfoTool } from "./tools/systemInfo.js";
 import { analyzeCodeTool } from "./tools/analyzeCode.js";
+import { semanticSearchTool } from "./tools/semanticSearch.js";
+import { analyzeArchitectureTool } from "./tools/analyzeArchitecture.js";
+import { refactorCodeTool } from "./tools/refactorCode.js";
+import { securityScanTool } from "./tools/securityScan.js";
 
 const server = new Server(
   {
@@ -31,6 +35,10 @@ const tools = [
   searchCodeTool,
   systemInfoTool,
   analyzeCodeTool,
+  semanticSearchTool,
+  analyzeArchitectureTool,
+  refactorCodeTool,
+  securityScanTool,
 ];
 
 server.setRequestHandler(
