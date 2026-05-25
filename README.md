@@ -1,37 +1,56 @@
 # 🤖 Dev Assistant MCP
 
-A **Model Context Protocol (MCP) server** that supercharges AI assistants like Claude with powerful developer tools — giving them the ability to read files, search codebases, analyze architecture, scan for security risks, suggest refactors, and semantically search your code using Google Gemini AI.
+> A **Model Context Protocol (MCP) server** that gives AI assistants like Claude full developer superpowers — read and write files, search codebases, analyze architecture, scan for secrets, get AI-powered refactoring suggestions, and interact with git, all through natural conversation.
 
-Built with TypeScript and the official Anthropic MCP SDK.
+Built with **TypeScript** and the official **Anthropic MCP SDK**. Powered by **Google Gemini 2.0 Flash Lite** for all AI features — optimized for the free tier.
 
 ---
 
 ## 🎯 What is MCP?
 
-Model Context Protocol (MCP) is an open standard that lets AI assistants connect to external tools and data sources. This server acts as a bridge between Claude and your local development environment — once connected, Claude can directly interact with your filesystem and codebase through natural conversation.
+Model Context Protocol (MCP) is an open standard that lets AI assistants connect to external tools and data sources. This server acts as a bridge between Claude and your local development environment. Once connected, Claude can directly interact with your filesystem, codebase, and git history through natural conversation — no copy-pasting, no context switching.
 
 ---
 
-## ✨ Tools
+## ✨ Tools — All 15
 
-### 🔧 Core Tools (No AI Required)
+### 🔧 Core Tools (No API Key Required)
 
-| Tool | Input | Description |
+| Tool | Inputs | Description |
 |---|---|---|
-| `system_info` | None | Returns your system's platform, CPU cores, total/free memory, and uptime |
-| `read_file` | `path` | Reads and returns the full contents of any file |
-| `search_code` | `path`, `query` | Searches `.ts`, `.js`, `.tsx`, `.jsx`, `.py`, `.json`, `.md` files for exact text matches |
-| `summarize_repo` | `path` | Lists the full file and folder structure of a repository |
+| `system_info` | — | Platform, CPU model & cores, memory (GB + usage %), Node.js version, uptime |
+| `read_file` | `path`, `start_line`?, `end_line`? | Read a file with line numbers. Supports reading a specific line range. 500KB size guard. |
+| `write_file` | `path`, `content`, `create_if_missing`?, `backup`? | Write or create a file. Auto-creates parent dirs. Saves a `.bak` backup before overwriting. |
+| `list_directory` | `path`, `show_hidden`? | List a single folder with file sizes and item counts. Faster than `summarize_repo` for browsing. |
+| `summarize_repo` | `path` | Full repo tree (`├──` structure), file-type breakdown, and total size. |
+| `search_code` | `path`, `query`, `case_sensitive`?, `use_regex`?, `file_extension`?, `max_results`? | Search with line numbers + 2 lines of context around each match. Supports regex and extension filters. |
+| `git_status` | `path` | Staged, unstaged, untracked files. Current branch, ahead/behind remote. |
+| `git_diff` | `path`, `file`?, `staged`? | Line-by-line diff. Narrow to a specific file or show staged changes. |
+| `git_log` | `path`, `limit`? | Recent commits with short hash, date, author, and message. |
 
 ### 🧠 AI-Powered Tools (Requires Gemini API Key)
 
-| Tool | Input | Description |
+| Tool | Inputs | Description |
 |---|---|---|
-| `analyze_code` | `path` | Sends a source file to Gemini for deep analysis — bugs, code quality, security issues, and improvement suggestions |
-| `analyze_architecture` | `path` | Analyzes your entire repo's structure and explains the architecture style, design quality, scalability, and weaknesses |
-| `security_scan` | `path` | Scans your repository for hardcoded secrets, API keys, tokens, passwords, and other security risks |
-| `refactor_code` | `path` | Gets AI-powered refactoring suggestions for cleaner architecture, better performance, readability, and TypeScript best practices |
-| `semantic_search` | `path`, `query` | Search your codebase using natural language — finds relevant files by meaning, not just exact text |
+| `analyze_code` | `path`, `focus`? | Language-aware code analysis: bugs, performance, security, architecture. Narrow with `focus`. |
+| `analyze_architecture` | `path` | Reviews whole-repo architecture using actual file content snippets, not just filenames. |
+| `refactor_code` | `path`, `focus`? | Language-aware refactoring suggestions with before/after code examples. |
+| `security_scan` | `path` | Regex-based scan for hardcoded secrets, AWS keys, JWTs, DB connection strings, SQL injection, and more. Severity-rated. **No Gemini call — instant and free.** |
+| `semantic_search` | `path`, `query`, `top_k`? | Vector embedding search: ranks all files by meaning locally, sends only top results to Gemini. |
+| `explain_error` | `error`, `context`?, `language`? | Paste any error or stack trace — get cause, diagnosis, and fix with code examples. |
+
+---
+
+## ⚡ Token Efficiency
+
+AI calls are kept lean on purpose — this server is designed to work well on the **Gemini free tier**:
+
+- **Gemini response cache** — 5-minute in-memory cache. Repeated calls on the same unchanged file cost zero tokens.
+- **File read cache** — All tools share a file cache keyed by path + modified time. Each file is read from disk only once per session.
+- **Embedding-based semantic search** — Cosine similarity runs entirely locally. Gemini only sees the top-k results, not the entire codebase.
+- **`focus` param** on `analyze_code` and `refactor_code` — Send a smaller, targeted prompt instead of always requesting a full review.
+- **`security_scan`** — Completely local regex scan. No Gemini call at all.
+- **`analyzeArchitecture`** — Controlled token budget: 400 chars × 30 files max, regardless of actual file sizes.
 
 ---
 
@@ -62,17 +81,17 @@ Open `.env` and add your Gemini API key:
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-Get a free API key at [aistudio.google.com](https://aistudio.google.com) → API Keys → Create.
+Get a free API key at [aistudio.google.com](https://aistudio.google.com) → **API Keys** → **Create**.
 
-> **Note:** The core tools (`system_info`, `read_file`, `search_code`, `summarize_repo`) work without a Gemini key. Only the AI-powered tools require it.
+> **Note:** The 9 core tools work with no API key at all. Only the 6 AI-powered tools require one.
 
-### 4. Build the project
+### 4. Build
 
 ```bash
 npm run build
 ```
 
-### 5. Start the server
+### 5. Start
 
 ```bash
 npm start
@@ -84,9 +103,9 @@ npm start
 
 ### Claude Desktop
 
-Add the following to your Claude Desktop config file:
+Add to your Claude Desktop config file:
 
-**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`  
+**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
@@ -100,7 +119,7 @@ Add the following to your Claude Desktop config file:
 }
 ```
 
-Restart Claude Desktop after saving the config.
+Restart Claude Desktop after saving.
 
 ### Claude.ai (Web)
 
@@ -108,21 +127,24 @@ Restart Claude Desktop after saving the config.
 2. Add a new MCP server
 3. Point it to your running server
 
-Once connected, Claude will have access to all 9 tools and can use them directly in conversation.
-
 ---
 
 ## 💬 Example Usage
 
 Once connected, you can ask Claude things like:
 
-- *"Read the file at `/my-project/src/app.ts`"*
-- *"Summarize the structure of my project at `/my-project`"*
-- *"Search for all usages of `useState` in `/my-project`"*
-- *"Analyze the architecture of my repo at `/my-project`"*
-- *"Scan `/my-project` for any hardcoded secrets or API keys"*
-- *"Suggest refactoring improvements for `/my-project/src/utils/db.ts`"*
-- *"Search my codebase at `/my-project` for where authentication is handled"*
+```
+"Read lines 40–80 of src/auth/middleware.ts"
+"Show me what files I've changed since my last commit"
+"Search for all usages of useEffect across .tsx files"
+"Analyze src/db/queries.ts focusing on security"
+"Scan my whole project for hardcoded secrets"
+"Suggest readability improvements for src/utils/parser.ts"
+"Find where authentication and session handling is in my codebase"
+"Show me the git diff for src/index.ts"
+"Explain this error: TypeError: Cannot read properties of undefined (reading 'map')"
+"Write the refactored version of this file back to disk"
+```
 
 ---
 
@@ -131,24 +153,29 @@ Once connected, you can ask Claude things like:
 ```
 dev-assistant-mcp/
 ├── src/
-│   ├── index.ts                    # MCP server entry point — registers all tools
+│   ├── index.ts                      # MCP server entry — registers all 15 tools
 │   ├── tools/
-│   │   ├── systemInfo.ts           # system_info — OS, CPU, memory stats
-│   │   ├── readFile.ts             # read_file — read any file by path
-│   │   ├── searchCode.ts           # search_code — exact text search across files
-│   │   ├── summarizeRepo.ts        # summarize_repo — full repo file tree
-│   │   ├── analyzeCode.ts          # analyze_code — Gemini code analysis
-│   │   ├── analyzeArchitecture.ts  # analyze_architecture — Gemini architecture review
-│   │   ├── securityScan.ts         # security_scan — hardcoded secrets detection
-│   │   ├── refactorCode.ts         # refactor_code — Gemini refactoring suggestions
-│   │   └── semanticSearch.ts       # semantic_search — natural language code search
+│   │   ├── readFile.ts               # read_file
+│   │   ├── writeFile.ts              # write_file
+│   │   ├── listDirectory.ts          # list_directory
+│   │   ├── summarizeRepo.ts          # summarize_repo
+│   │   ├── searchCode.ts             # search_code
+│   │   ├── systemInfo.ts             # system_info
+│   │   ├── gitTools.ts               # git_status, git_diff, git_log
+│   │   ├── analyzeCode.ts            # analyze_code
+│   │   ├── analyzeArchitecture.ts    # analyze_architecture
+│   │   ├── refactorCode.ts           # refactor_code
+│   │   ├── securityScan.ts           # security_scan
+│   │   ├── semanticSearch.ts         # semantic_search
+│   │   └── explainError.ts           # explain_error
 │   └── utils/
-│       ├── gemini.ts               # Shared Gemini API client (gemini-2.0-flash-lite)
-│       ├── embeddings.ts           # Vector embeddings for semantic search
-│       ├── chunkText.ts            # Splits large files into chunks for AI processing
-│       └── repoScanner.ts          # Shared repo file walker (excludes node_modules, .git, dist)
-├── dist/                           # Compiled JavaScript output
-├── env.example                     # Template for environment variables
+│       ├── gemini.ts                 # Gemini API client with response cache
+│       ├── embeddings.ts             # Vector embeddings + cosine similarity
+│       ├── fileCache.ts              # File read cache (path + mtime keyed)
+│       ├── chunkText.ts              # Splits large text at newline boundaries
+│       └── repoScanner.ts            # Repo file walker (18 languages supported)
+├── dist/                             # Compiled JavaScript output
+├── env.example                       # Environment variable template
 ├── package.json
 └── tsconfig.json
 ```
@@ -159,7 +186,7 @@ dev-assistant-mcp/
 
 | Variable | Required | Description |
 |---|---|---|
-| `GEMINI_API_KEY` | For AI tools | Your Google Gemini API key from [aistudio.google.com](https://aistudio.google.com) |
+| `GEMINI_API_KEY` | For AI tools only | Free key from [aistudio.google.com](https://aistudio.google.com) |
 
 ---
 
@@ -175,12 +202,14 @@ dev-assistant-mcp/
 
 ## 🛠️ Tech Stack
 
-- **TypeScript** — fully typed throughout
+- **TypeScript** — fully typed throughout, Zod input validation on all tools
 - **[@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk)** — official Anthropic MCP SDK
-- **Google Gemini API** (`gemini-2.0-flash-lite`) — powers all AI tools
+- **Google Gemini API** (`gemini-2.0-flash-lite`) — powers all AI tools, free tier friendly
+- **simple-git** — native git integration
+- **zod** — runtime input validation
 - **fs-extra** — enhanced file system operations
-- **glob** — file pattern matching for code search
-- **axios** — HTTP client for Gemini API calls
+- **glob** — file pattern matching
+- **axios** — HTTP client for Gemini API
 - **dotenv** — environment variable management
 
 ---
@@ -189,18 +218,18 @@ dev-assistant-mcp/
 
 - Never commit your `.env` file — it's already in `.gitignore`
 - Use `env.example` as a safe template to share
-- The `security_scan` tool itself can detect accidentally hardcoded secrets in your projects
+- `security_scan` uses regex patterns that look for actual secret *values*, not just variable names — reducing false positives from comments and README examples
+- Secret values are **redacted** in scan output
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Ideas for new tools:
+Contributions are welcome! Some ideas for future tools:
 
-- `write_file` — write or create files
-- `run_command` — execute shell commands safely
-- `git_status` / `git_diff` — git integration
-- `explain_error` — paste an error and get an AI explanation
+- `run_command` — execute shell commands (npm test, tsc, pytest) with an allowlist
+- `find_dependencies` — parse package.json / requirements.txt and flag outdated or vulnerable packages
+- `generate_code` — describe a function or module and generate + write it directly
 
 Feel free to open an issue or submit a pull request.
 
