@@ -1,4 +1,4 @@
-# 🤖 Dev Assistant MCP
+#  Dev Assistant MCP
 
 > An **Agentic Developer Runtime Infrastructure** built on the Model Context Protocol — giving Claude the ability to understand repositories, orchestrate multi-step engineering tasks, execute commands safely, and validate results autonomously.
 
@@ -6,7 +6,7 @@ Built with **TypeScript** and the official **Anthropic MCP SDK**. Powered by **G
 
 ---
 
-## 🚀 What's New in v3.0.0
+##  What's New in v3.0.0
 
 v3 is a major architectural upgrade. The system evolved from a flat list of 15 independent tools into a layered agentic runtime:
 
@@ -25,15 +25,15 @@ v3 is a major architectural upgrade. The system evolved from a flat list of 15 i
 
 ---
 
-## 🎯 What is MCP?
+##  What is MCP?
 
 Model Context Protocol (MCP) is an open standard that lets AI assistants connect to external tools and data sources. This server acts as a bridge between Claude and your local development environment. Once connected, Claude can directly interact with your filesystem, codebase, git history, and shell — through natural conversation.
 
 ---
 
-## ✨ Tools — All 20
+##  Tools — All 20
 
-### 🔧 Core Tools (No API Key Required)
+###  Core Tools (No API Key Required)
 
 | Tool | Description |
 |---|---|
@@ -49,7 +49,7 @@ Model Context Protocol (MCP) is an open standard that lets AI assistants connect
 | `run_command` | **NEW** — Safe shell execution with risk scoring (npm, git, tsc, pytest, docker, etc.) |
 | `repo_context` | **NEW** — Detect language, frameworks, package manager, test/build/lint commands |
 
-### 🧠 AI-Powered Tools (Requires Gemini API Key)
+###  AI-Powered Tools (Requires Gemini API Key)
 
 | Tool | Description |
 |---|---|
@@ -60,7 +60,7 @@ Model Context Protocol (MCP) is an open standard that lets AI assistants connect
 | `semantic_search` | Vector embedding search — finds files by meaning, not just keywords |
 | `explain_error` | Paste any error or stack trace — get cause, diagnosis, and fix |
 
-### ⚙️ Orchestration Tools (NEW — Requires Gemini API Key)
+###  Orchestration Tools (NEW — Requires Gemini API Key)
 
 | Tool | Description |
 |---|---|
@@ -70,7 +70,7 @@ Model Context Protocol (MCP) is an open standard that lets AI assistants connect
 
 ---
 
-## 🧠 How Workflow Orchestration Works
+##  How Workflow Orchestration Works
 
 ```
 User goal (natural language)
@@ -100,7 +100,7 @@ The system will automatically: detect the repo's language and structure → plan
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### 1. Clone
 
@@ -130,7 +130,7 @@ Get a free key at [aistudio.google.com](https://aistudio.google.com) → **API K
 
 ---
 
-## 🔌 Connecting to Claude Desktop
+##  Connecting to Claude Desktop
 
 **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
@@ -153,7 +153,7 @@ Restart Claude Desktop after saving.
 
 ---
 
-## 💬 Example Usage
+##  Example Usage
 
 ```
 "Use repo_context on /path/to/my/project"
@@ -168,7 +168,7 @@ Restart Claude Desktop after saving.
 
 ---
 
-## 🗂️ Project Structure
+##  Project Structure
 
 ```
 dev-assistant-mcp/
@@ -204,7 +204,7 @@ dev-assistant-mcp/
 
 ---
 
-## ⚙️ Environment Variables
+##  Environment Variables
 
 | Variable | Required | Description |
 |---|---|---|
@@ -212,7 +212,7 @@ dev-assistant-mcp/
 
 ---
 
-## 📜 Scripts
+##  Scripts
 
 | Script | Description |
 |---|---|
@@ -223,7 +223,7 @@ dev-assistant-mcp/
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - **TypeScript** — strict mode, fully typed
 - **[@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/typescript-sdk)** — official Anthropic MCP SDK
@@ -236,7 +236,7 @@ dev-assistant-mcp/
 
 ---
 
-## 🔒 Security
+##  Security
 
 - `.env` is git-ignored — never committed
 - `run_command` has a built-in risk scorer: blocked patterns (rm -rf /, curl | bash, etc.), a safelist of known-safe prefixes, and a `allow_moderate` gate for everything else
@@ -245,7 +245,7 @@ dev-assistant-mcp/
 
 ---
 
-## 🗺️ Roadmap
+##  Roadmap
 
 - **Phase 2** — Validation pipeline: build verification, test runner, lint checker wired into workflows
 - **Phase 3** — Safe execution runtime: Docker sandboxing, permission boundaries, rollback engine
@@ -253,12 +253,12 @@ dev-assistant-mcp/
 
 ---
 
-## 📄 License
+##  License
 
 MIT
 
 ---
 
-## 👨‍💻 Author
+##  Author
 
 Built by [@KeyboardNoMouse](https://github.com/KeyboardNoMouse)
